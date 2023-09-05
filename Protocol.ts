@@ -5,6 +5,7 @@ interface ClientChangeNickname {
 
 interface ClientCreateMessage {
   kind: "createMessage";
+  roomName: string;
   content: string;
 }
 
@@ -27,14 +28,15 @@ export type FromClient =
 interface ServerMessageCreated {
   kind: "messageCreated";
   authorId: string;
+  roomName: string;
   content: string;
 }
 
-export type ServerAck = {
-  kind: `ACK/${FromClient["kind"]}`;
-};
-
-export type FromServer = ServerMessageCreated | ServerAck;
+export type FromServer =
+  | ServerMessageCreated
+  | {
+      kind: `ACK/${FromClient["kind"]}`;
+    };
 
 export function isClientMessage(message: object): message is FromClient {
   if (typeof message !== "object") {

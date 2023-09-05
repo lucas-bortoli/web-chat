@@ -16,29 +16,31 @@ export class Chat {
     switch (message.kind) {
       case "joinRoom":
         client.rooms.push(message.roomName);
-        client.send({ kind: "ACK/joinRoom" });
         break;
       case "leaveRoom":
         removeFromArray(client.rooms, message.kind);
-        client.send({ kind: "ACK/leaveRoom" });
         break;
       case "changeNickname":
         client.nickname = message.nickname;
-        client.send({ kind: "ACK/changeNickname" });
         break;
       case "createMessage":
-        client.send({ kind: "ACK/createMessage" });
-
         for (const otherPeer of this.#clients) {
-          if (otherPeer === client) {
+          if (otherPeer === client || !otherPeer.rooms.includes(message.roomName)) {
             continue;
           }
 
-          otherPeer.send({ kind: "messageCreated", authorId: client.id, content: message.content });
+          otherPeer.send({
+            kind: "messageCreated",
+            authorId: client.id,
+            roomName: message.roomName,
+            content: message.content
+          });
         }
 
         break;
     }
+
+    client.send({ kind: `ACK/${message.kind}` });
   }
 
   #cleanupClient(client: Client) {
