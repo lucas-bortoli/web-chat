@@ -51,3 +51,21 @@ export function isClientMessage(message: object): message is FromClient {
     message.kind as string
   );
 }
+
+export function isServerMessage(message: object): message is FromServer {
+  if (typeof message !== "object") {
+    return false;
+  }
+
+  if (!("kind" in message)) {
+    return false;
+  }
+
+  return [
+    "messageCreated",
+    "ACK/changeNickname",
+    "ACK/createMessage",
+    "ACK/joinRoom",
+    "ACK/leaveRoom"
+  ].includes(message.kind as string);
+}
